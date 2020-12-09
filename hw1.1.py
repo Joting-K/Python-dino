@@ -14,3 +14,4 @@ if money >= cost:
     print("$"+str(money-cost))
 else:
     print("-1")
+哈豁
