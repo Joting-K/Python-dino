@@ -15,3 +15,4 @@ if money >= cost:
 else:
     print("-1")
 哈豁
+頭痛~~
