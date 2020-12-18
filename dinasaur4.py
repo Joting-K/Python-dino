@@ -127,6 +127,8 @@ class GUI():
     def do_ok(self):
         global path
         #不同背景選擇、聲音選擇(透過路徑)
+
+        """
         if self.role_combobox.get()=='過街老鼠':
             path1 = os.path.join(path,'theme3')
             if self.sound_combobox.get() == '性感男聲':
@@ -145,7 +147,11 @@ class GUI():
                 mypath = os.path.join(path1,'audio1')
             else:
                 mypath = os.path.join(path1,'audio2')  
-            
+        """
+
+        theme = {'噴泉漫步': 'theme1', '侏儸紀草原': 'theme2', '過街老鼠': 'theme3'}
+        sound = {'性感男聲': 'audio1', '平靜女聲': 'audio2'}
+        mypath = os.path.join(path, theme[self.role_combobox.get()], sound[self.sound_combobox.get()])
 
         if self.type_combobox.get()=='視覺關':  # 視覺關
         # elif self.type_combobox.get()=='聽覺關':  # 聽覺關
