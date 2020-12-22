@@ -1,4 +1,5 @@
 """原檔是最原本的小恐龍（視覺）"""
+"""堪用版本進化1"""
 import numpy as np
 import tkinter as tk
 import tkinter.ttk as ttk
@@ -19,8 +20,8 @@ import tkinter.font as tkFont
 from PIL import ImageTk, Image
 
 # 使用者介面 使用tk
-nn = 1  #  遊玩順序
-path = "D:\Desktop\程式期末"
+nn = 1  # 遊玩順序
+path = "/Users/qinglin/Documents/Python/Python-dino/my_dino"
 
 
 class GUI():
@@ -42,33 +43,22 @@ class GUI():
         ygap = 35
         i = 0
 
-        self.role_combobox = ttk.Combobox(self.gui, textvariable=tk.StringVar(), font=('微軟正黑體', 20, "bold"))
-        self.role_combobox["value"] = ('過街老鼠', '噴泉漫步', '侏儸紀草原')
-        self.role_combobox.current(0)
-        self.role_combobox.place(x=x + xgap, y=y + i * ygap, width=150)
-        i += 1.7
+        def my_button(choice, now_i):
+            combobox = ttk.Combobox(self.gui, textvariable=tk.StringVar(), font=('微軟正黑體', 20, "bold"))
+            combobox["value"] = choice
+            combobox.current(0)
+            combobox.place(x=x + xgap, y=y + now_i * ygap, width=150)
+            now_i += 1.7
+            return combobox, now_i
 
+        self.role_combobox, i = my_button(['過街老鼠', '噴泉漫步', '侏儸紀草原'], i)  # 主題選擇
         self.name_entry = tk.Entry(self.gui, font=('微軟正黑體', 20, "bold"))  # 輸入名字
         self.name_entry.place(x=x + xgap, y=y + i * ygap, width=150)
         i += 1.7
-
-        self.type_combobox = ttk.Combobox(self.gui, textvariable=tk.StringVar(), font=('微軟正黑體', 20, "bold"))
-        self.type_combobox["value"] = ('視覺關', '聽覺關', '挑戰關')
-        self.type_combobox.current(0)
-        self.type_combobox.place(x=x + xgap, y=y + i * ygap, width=150)
-        i += 1.7
-
-        self.difficulty_combobox = ttk.Combobox(self.gui, textvariable=tk.StringVar(), font=('微軟正黑體', 20, "bold"))
-        self.difficulty_combobox["value"] = ('簡單', '普通', '難')
-        self.difficulty_combobox.current(0)
-        self.difficulty_combobox.place(x=x + xgap, y=y + i * ygap, width=150)
-        i += 1.7
-
-        self.sound_combobox = ttk.Combobox(self.gui, textvariable=tk.StringVar(), font=('微軟正黑體', 20, "bold"))
-        self.sound_combobox["value"] = ['性感男聲', '平靜女聲']
-        self.sound_combobox.current(0)
-        self.sound_combobox.place(x=x + xgap, y=y + i * ygap, width=150)
-        i += 2
+        self.type_combobox, i = my_button(['視覺關', '聽覺關', '挑戰關'], i)  # 關卡種類
+        self.difficulty_combobox, i = my_button(['簡單', '普通', '難'], i)  # 關卡難度
+        self.sound_combobox, i = my_button(['性感男聲', '平靜女聲'], i)  # 關卡聲音
+        i += 0.3
 
         self.explain_button = tk.Button(self.gui, bg='lightgray', command=self.do_explain, text='遊戲說明',
                                         font=('微軟正黑體', 20, "bold"))
@@ -116,7 +106,6 @@ class GUI():
 
         self.gui.mainloop()
 
-
     # 按下遊戲說明的動作
     def do_explain(self):
         pass
@@ -129,581 +118,370 @@ class GUI():
     def do_ok(self):
         global path
 
-        #不同背景選擇、聲音選擇(透過路徑)
-        if self.role_combobox.get()=='過街老鼠':
-            path1 = os.path.join(path,'theme3')
-            if self.sound_combobox.get() == '性感男聲':
-                mypath = os.path.join(path1,'audio1')
-            else:
-                mypath = os.path.join(path1,'audio2')
-        elif self.role_combobox.get()=='噴泉漫步':
-            path1 = os.path.join(path,'theme1')
-            if self.sound_combobox.get() == '性感男聲':
-                mypath = os.path.join(path1,'audio1')
-            else:
-                mypath = os.path.join(path1,'audio2')  
-        else:
-            path1 = os.path.join(path,'theme2')
-            if self.sound_combobox.get() == '性感男聲':
-                mypath = os.path.join(path1,'audio1')
-            else:
-                mypath = os.path.join(path1,'audio2')  
-            
+        # 不同背景選擇、聲音選擇(透過路徑)
+        theme = {'噴泉漫步': 'theme1', '侏儸紀草原': 'theme2', '過街老鼠': 'theme3'}
+        sound = {'性感男聲': 'audio1', '平靜女聲': 'audio2'}
+        mypath = os.path.join(path, theme[self.role_combobox.get()], sound[self.sound_combobox.get()])
 
-        if self.type_combobox.get()=='視覺關':  # 視覺關
-            SCREENWITDH=800   #宽度
-            SCREENHEIGHT=300  #高度
-            FPS=30  #更新画面的时间
-                #定义一个地图类
-            class MyMap:
-                #加载背景图片
-                def __init__(self,x,y):
-                        self.bg = pygame.image.load(os.path.join(mypath, "image/bg.png"))  # background
-                        self.x=x
-                        self.y=y
-                def map_rolling(self):
-                    if self.x<-790: #说明地图已经移动完毕
-                        self.x=800  #给地图新坐
-                    else:
-                        self.x -=10  # 移动5个像素
-                #更新地图
-                def map_update(self):
-                    SCREEN.blit(self.bg,(self.x,self.y))
-            
-            #恐龙类
-            class Dinasaur:
-                def __init__(self):
-                    #初始化小恐龙矩形
-                    self.rect=pygame.Rect(0,0,0,0)
-                    self.jumpState=False  #跳跃的状态
-                    self.squatState=False  #蹲下的状态
-                    self.jumpHeight=100   #跳跃高度
-                    self.squatHeight=-100   #蹲下高度
-                    self.lowest_y=140     #最低坐标
-                    self.jumpValue= 0      #跳跃增变量
-                    self.squatValue= 0      #蹲下增变量
-                    self.dinasaurIndex=0
-                    self.dinasaurIndexGen=cycle([0,1,2,3,4,5])
-                    self.dinasaur_image= (pygame.image.load(os.path.join(mypath, "image/role1.png")).convert_alpha(),
-                                          pygame.image.load(os.path.join(mypath, "image/role1.png")).convert_alpha(),
-                                          pygame.image.load(os.path.join(mypath, "image/role2.png")).convert_alpha(),
-                                          pygame.image.load(os.path.join(mypath, "image/role2.png")).convert_alpha(),
-                                          pygame.image.load(os.path.join(mypath, "image/role3.png")).convert_alpha(),
-                                          pygame.image.load(os.path.join(mypath, "image/role3.png")).convert_alpha())
-                    self.jump_audio=pygame.mixer.Sound(os.path.join(mypath, "audio/jump.wav"))  # 加载音效
-                    self.hear_audio=pygame.mixer.Sound(os.path.join(mypath, "audio/蹲.wav")) #加载音效
-                    self.jump2_audio=pygame.mixer.Sound(os.path.join(mypath, "audio/跳.wav")) #加载音效
-                    self.rect.size=self.dinasaur_image[0].get_size()     #设置小恐龙矩形大小
-                    self.x=50                                            #设置小恐龙的x坐标
-                    self.y=self.lowest_y                                 #设置小恐龙的y坐标
-                    self.rect.topleft=(self.x,self.y)                    #设置左上角为准
-                
-                # 跳躍
-                def jump(self):
-                    self.jumpState = True
-                # 蹲下
-                def squat(self):
-                    self.squatState = True
-                #小恐龍的移動
-                def move(self):
-                    if self.jumpState: # 當處在可起跳狀態
-                        if self.rect.y >= self.lowest_y:
-                            self.jumpValue = - 5  # 以5個像素向上移動
-                        if self.rect.y <= self.lowest_y-self.jumpHeight:
-                            self.jumpValue = 5
-                        self.rect.y += self.jumpValue # 透過循環改變恐龍的Y值
-                        if self.rect.y == self.lowest_y: # 當恐龍回到地面
-                            self.jumpState = False        # 關閉跳躍狀態
-                    if self.squatState:      # 當處在可蹲下狀態
-                        if self.rect.y <= self.lowest_y:
-                            self.squatValue = 5  # 以5個像素向下移動
-                        if self.rect.y >= self.lowest_y - self.squatHeight:
-                            self.squatValue = -5
-                        self.rect.y += self.squatValue # 透過循環改變恐龍的Y值
-                        if self.rect.y == self.lowest_y:  # 小恐龍回到地面
-                            self.squatState = False        # 關閉蹲下狀態
+        SCREENWITDH = 800  # 寬度
+        SCREENHEIGHT = 300  # 高度
+        FPS = 30  # 更新換面的時間
 
-                #繪製小恐龍
-                def draw_dinasour(self):
-                    # 匹配恐龍動圖
-                    dinasaurindex = next(self.dinasaurIndexGen)
-                    # 實現繪製
-                    SCREEN.blit(self.dinasaur_image[dinasaurindex],(self.x,self.rect.y))
-        
-                
-            #障碍物类
-            class Obstacle:
-                score=1 #分数
-                def __init__(self):
-                    #初始化障碍物的矩形
-                    self.rect=pygame.Rect(0,0,0,0)
-                    #加载障碍物的图片
-                    self.stone=pygame.image.load(os.path.join(mypath, "image/obstacle1.png")).convert_alpha() #加载石头
-                    self.cacti=pygame.image.load(os.path.join(mypath, "image/obstacle2.png")).convert_alpha() #加载仙人掌
-                    self.cloud=pygame.image.load(os.path.join(mypath, "image/obstacle3.png")).convert_alpha() #加载雲
-                    
-                    
-                   # 加载分数图片
-                    self.numbers=(pygame.image.load(os.path.join(mypath, "image/0.png")).convert_alpha(), #convert_alpha()透明度
-                                  pygame.image.load(os.path.join(mypath, "image/1.png")).convert_alpha(),
-                                  pygame.image.load(os.path.join(mypath, "image/2.png")).convert_alpha(),
-                                  pygame.image.load(os.path.join(mypath, "image/3.png")).convert_alpha(),
-                                  pygame.image.load(os.path.join(mypath, "image/4.png")).convert_alpha(),
-                                  pygame.image.load(os.path.join(mypath, "image/5.png")).convert_alpha(),
-                                  pygame.image.load(os.path.join(mypath, "image/6.png")).convert_alpha(),
-                                  pygame.image.load(os.path.join(mypath, "image/7.png")).convert_alpha(),
-                                  pygame.image.load(os.path.join(mypath, "image/8.png")).convert_alpha(),
-                                  pygame.image.load(os.path.join(mypath, "image/9.png")).convert_alpha(),
-            
-                                  )
-                    #加载加分的音效
-                    self.score_audio=pygame.mixer.Sound(os.path.join(mypath, "audio/score.wav"))
-                    #创建0，1之间的随机数,0是石头，1是仙人掌
-                    r=random.randint(0,2)
-                    if r == 0:
-                        self.image=self.stone
-                        self.rect.size=self.image.get_size()
-                        #获取位图的宽高
-                        self.width,self.height=self.rect.size
-                        #障碍物绘制坐标
-                        self.x=800
-                        self.y=215
-                        self.rect.center=(self.x,self.y)
-                    elif r == 1:
-                        self.image=self.cacti
-                        self.rect.size=self.image.get_size()
-                        #获取位图的宽高
-                        self.width,self.height=self.rect.size
-                        #障碍物绘制坐标
-                        self.x=800
-                        self.y=215
-                        self.rect.center=(self.x,self.y)
-                    else:
-                        self.image=self.cloud
-                        #根据障碍物位图的宽高设置矩形
-                        self.rect.size=self.image.get_size()
-                        #获取位图的宽高
-                        self.width,self.height=self.rect.size
-                        #障碍物绘制坐标
-                        self.x=800
-                        self.y=150-(self.height/2)
-                        self.rect.center=(self.x,self.y)
-                        
-            
-                #移动障碍物
-                def obstacle_move(self):
-                    self.rect.x -=10
+        # 定義一個地圖
+        class MyMap:
+            # 加载背景图片
+            def __init__(self, x, y):
+                self.bg = pygame.image.load(os.path.join(mypath, "image/bg.png"))  # background
+                self.x = x
+                self.y = y
 
-                
-                #绘制障碍物
-                def draw_obstacle(self):
-                    SCREEN.blit(self.image,(self.rect.x,self.rect.y))
-            
-                #获取分数
-                def getScore(self):
-                    self.score
-                    tmp=self.score
-                    if tmp==1:
-                        self.score_audio.play()
-                    self.score=0
-                    return tmp
-            
-                # 顯示分數
-                def showScore(self,score):
-                    self.scoreDigits = [int(x) for x in list(str(score))]
-                    totalWidth = 0 # 要顯示的數字的總寬度
-                    for digit in self.scoreDigits:
-                        # 獲取積分圖片的寬度
-                        totalWidth += self.numbers[digit].get_width()
-                    # 分數横向位置
-                    xoffset = (SCREENWITDH - totalWidth) / 2
-                    for digit in self.scoreDigits:
-                        # 繪製分数
-                        SCREEN.blit(self.numbers[digit],(xoffset,SCREENHEIGHT * 0.1))
-                        # 隨著數字增加改變位置
-                        xoffset+=self.numbers[digit].get_width()
-                
-            
-            #游戏结束的方法
-            def game_over():
-                bump_audio=pygame.mixer.Sound(os.path.join(mypath, "audio/bump.wav"))
-                bump_audio.play()
-                #获取窗口宽高
-                screen_w=pygame.display.Info().current_w
-                screen_h=pygame.display.Info().current_h
-                #加载游戏结束的图片
-                over_img=pygame.image.load(os.path.join(mypath, "image/gameover.png")).convert_alpha()
-                #绘制游戏结束的图标在窗体中间
-                SCREEN.blit(over_img,((screen_w-over_img.get_width())/2,(screen_h-over_img.get_height())/2))
-            
+            def map_rolling(self):
+                if self.x < -790:  # 说明地图已经移动完毕
+                    self.x = 800  # 给地图新坐
+                else:
+                    self.x -= 10  # 移动5个像素
 
-            # 視覺關遊戲圖片載入
-            def Watch_game():    
-                # 獲取窗口寬高
-                screen_w = pygame.display.Info().current_w
-                screen_h = pygame.display.Info().current_h
-                # 載入視覺關遊戲的圖片
-                watch_img = pygame.image.load(os.path.join(mypath, "image\\watching.png")).convert_alpha()
-                # 繪製視覺關遊戲的圖標在視窗中間
-                SCREEN.blit(watch_img,((screen_w-watch_img.get_width()) / 2,(screen_h-watch_img.get_height()) / 2))
-                for i in range(20):
-                    pygame.display.update()
-                    FPSLOCK.tick(FPS) 
-            
+            # 更新地图
+            def map_update(self):
+                SCREEN.blit(self.bg, (self.x, self.y))
+
+        # 恐龙类
+        class Dinasaur:
+            def __init__(self):
+                # 初始化小恐龙矩形
+                self.rect = pygame.Rect(0, 0, 0, 0)
+                self.jumpState = False  # 跳跃的状态
+                self.squatState = False  # 蹲下的状态
+                self.jumpHeight = 100  # 跳跃高度
+                self.squatHeight = -100  # 蹲下高度
+                self.lowest_y = 140  # 最低坐标
+                self.jumpValue = 0  # 跳跃增变量
+                self.squatValue = 0  # 蹲下增变量
+                self.dinasaurIndex = 0
+                self.dinasaurIndexGen = cycle([0, 1, 2, 3, 4, 5])
+                self.dinasaur_image = (pygame.image.load(os.path.join(mypath, "image/role1.png")).convert_alpha(),
+                                       pygame.image.load(os.path.join(mypath, "image/role1.png")).convert_alpha(),
+                                       pygame.image.load(os.path.join(mypath, "image/role2.png")).convert_alpha(),
+                                       pygame.image.load(os.path.join(mypath, "image/role2.png")).convert_alpha(),
+                                       pygame.image.load(os.path.join(mypath, "image/role3.png")).convert_alpha(),
+                                       pygame.image.load(os.path.join(mypath, "image/role3.png")).convert_alpha())
+                self.jump_audio = pygame.mixer.Sound(os.path.join(mypath, "audio/jump.wav"))  # 加载音效
+                self.hear_audio = pygame.mixer.Sound(os.path.join(mypath, "audio/蹲.wav"))  # 加载音效
+                self.jump2_audio = pygame.mixer.Sound(os.path.join(mypath, "audio/跳.wav"))  # 加载音效
+                self.rect.size = self.dinasaur_image[0].get_size()  # 设置小恐龙矩形大小
+                self.x = 50  # 设置小恐龙的x坐标
+                self.y = self.lowest_y  # 设置小恐龙的y坐标
+                self.rect.topleft = (self.x, self.y)  # 设置左上角为准
+
+            # 跳躍
+            def jump(self):
+                self.jumpState = True
+
+            # 蹲下
+            def squat(self):
+                self.squatState = True
+
+            # 小恐龍的移動
+            def move(self):
+                if self.jumpState:  # 當處在可起跳狀態
+                    if self.rect.y >= self.lowest_y:
+                        self.jumpValue = - 5  # 以5個像素向上移動
+                    if self.rect.y <= self.lowest_y - self.jumpHeight:
+                        self.jumpValue = 5
+                    self.rect.y += self.jumpValue  # 透過循環改變恐龍的Y值
+                    if self.rect.y == self.lowest_y:  # 當恐龍回到地面
+                        self.jumpState = False  # 關閉跳躍狀態
+                if self.squatState:  # 當處在可蹲下狀態
+                    if self.rect.y <= self.lowest_y:
+                        self.squatValue = 5  # 以5個像素向下移動
+                    if self.rect.y >= self.lowest_y - self.squatHeight:
+                        self.squatValue = -5
+                    self.rect.y += self.squatValue  # 透過循環改變恐龍的Y值
+                    if self.rect.y == self.lowest_y:  # 小恐龍回到地面
+                        self.squatState = False  # 關閉蹲下狀態
+
+            # 繪製小恐龍
+            def draw_dinasour(self):
+                # 匹配恐龍動圖
+                dinasaurindex = next(self.dinasaurIndexGen)
+                # 實現繪製
+                SCREEN.blit(self.dinasaur_image[dinasaurindex], (self.x, self.rect.y))
+
+        # 障碍物类
+        class Obstacle:
+            score = 1  # 分数
+
+            def __init__(self):
+                # 初始化障碍物的矩形
+                self.rect = pygame.Rect(0, 0, 0, 0)
+                # 加载障碍物的图片
+                self.stone = pygame.image.load(os.path.join(mypath, "image/obstacle1.png")).convert_alpha()  # 加载石头
+                self.cacti = pygame.image.load(os.path.join(mypath, "image/obstacle2.png")).convert_alpha()  # 加载仙人掌
+                self.cloud = pygame.image.load(os.path.join(mypath, "image/obstacle3.png")).convert_alpha()  # 加载雲
+
+                # 加载分数图片
+                self.numbers = (
+                    pygame.image.load(os.path.join(mypath, "image/0.png")).convert_alpha(),  # convert_alpha()透明度
+                    pygame.image.load(os.path.join(mypath, "image/1.png")).convert_alpha(),
+                    pygame.image.load(os.path.join(mypath, "image/2.png")).convert_alpha(),
+                    pygame.image.load(os.path.join(mypath, "image/3.png")).convert_alpha(),
+                    pygame.image.load(os.path.join(mypath, "image/4.png")).convert_alpha(),
+                    pygame.image.load(os.path.join(mypath, "image/5.png")).convert_alpha(),
+                    pygame.image.load(os.path.join(mypath, "image/6.png")).convert_alpha(),
+                    pygame.image.load(os.path.join(mypath, "image/7.png")).convert_alpha(),
+                    pygame.image.load(os.path.join(mypath, "image/8.png")).convert_alpha(),
+                    pygame.image.load(os.path.join(mypath, "image/9.png")).convert_alpha(),
+
+                )
+                # 加载加分的音效
+                self.score_audio = pygame.mixer.Sound(os.path.join(mypath, "audio/score.wav"))
+                # 创建0，1之间的随机数,0是石头，1是仙人掌
+                r = random.randint(0, 2)
+                if r == 0:
+                    self.image = self.stone
+                    self.rect.size = self.image.get_size()
+                    # 获取位图的宽高
+                    self.width, self.height = self.rect.size
+                    # 障碍物绘制坐标
+                    self.x = 800
+                    self.y = 215
+                    self.rect.center = (self.x, self.y)
+                elif r == 1:
+                    self.image = self.cacti
+                    self.rect.size = self.image.get_size()
+                    # 获取位图的宽高
+                    self.width, self.height = self.rect.size
+                    # 障碍物绘制坐标
+                    self.x = 800
+                    self.y = 215
+                    self.rect.center = (self.x, self.y)
+                else:
+                    self.image = self.cloud
+                    # 根据障碍物位图的宽高设置矩形
+                    self.rect.size = self.image.get_size()
+                    # 获取位图的宽高
+                    self.width, self.height = self.rect.size
+                    # 障碍物绘制坐标
+                    self.x = 800
+                    self.y = 150 - (self.height / 2)
+                    self.rect.center = (self.x, self.y)
+
+            # 移动障碍物
+            def obstacle_move(self):
+                self.rect.x -= 10
+
+            # 绘制障碍物
+            def draw_obstacle(self):
+                SCREEN.blit(self.image, (self.rect.x, self.rect.y))
+
+            # 获取分数
+            def getScore(self):
+                self.score
+                tmp = self.score
+                if tmp == 1:
+                    self.score_audio.play()
+                self.score = 0
+                return tmp
+
+            # 顯示分數
+            def showScore(self, score):
+                self.scoreDigits = [int(x) for x in list(str(score))]
+                totalWidth = 0  # 要顯示的數字的總寬度
+                for digit in self.scoreDigits:
+                    # 獲取積分圖片的寬度
+                    totalWidth += self.numbers[digit].get_width()
+                # 分數横向位置
+                xoffset = (SCREENWITDH - totalWidth) / 2
+                for digit in self.scoreDigits:
+                    # 繪製分数
+                    SCREEN.blit(self.numbers[digit], (xoffset, SCREENHEIGHT * 0.1))
+                    # 隨著數字增加改變位置
+                    xoffset += self.numbers[digit].get_width()
+
+        # 游戏结束的方法
+        def game_over():
+            bump_audio = pygame.mixer.Sound(os.path.join(mypath, "audio/bump.wav"))
+            bump_audio.play()
+            # 获取窗口宽高
+            screen_w = pygame.display.Info().current_w
+            screen_h = pygame.display.Info().current_h
+            # 加载游戏结束的图片
+            over_img = pygame.image.load(os.path.join(mypath, "image/gameover.png")).convert_alpha()
+            # 绘制游戏结束的图标在窗体中间
+            SCREEN.blit(over_img, ((screen_w - over_img.get_width()) / 2, (screen_h - over_img.get_height()) / 2))
+
+        # 顯示聽覺關or視覺關
+        def what_game(subtitle_path):
+            """聽覺關：subtitle_path == 'image/hear.png'"""
+            """視覺關：subtitle_path == 'image/watching.png'"""
+            # 获取窗口宽高
+            screen_w = pygame.display.Info().current_w
+            screen_h = pygame.display.Info().current_h
+            # 加载遊戲的图片
+
+            this_img = pygame.image.load(os.path.join(mypath, subtitle_path)).convert_alpha()
+
+            # 绘制游戏结束的图标在窗体中间
+            SCREEN.blit(this_img, ((screen_w - this_img.get_width()) / 2, (screen_h - this_img.get_height()) / 2))
+            for i in range(20):
+                pygame.display.update()
+                FPSLOCK.tick(FPS)
+
+            def gameStartPrepared(game_prepared):
+                print("game starting")
+                game_state = "Watching"
+                what_game('image/watching.png')
+                game_prepared = True
+
+        if self.type_combobox.get() == '視覺關':  # 視覺關
             def mainGame():
-                sound_r = -1 # -1是預設沒有聲音狀態, 0是蹲，1是跳
+                sound_r = -1  # -1是預設沒有聲音狀態, 0是蹲，1是跳
                 game_prepared = False
-                score=0 #记录分值
-                over=False
-                global SCREEN,FPSLOCK
-                pygame.init() #初始化pygame
-                FPSLOCK=pygame.time.Clock() #刷新屏幕的时间锁
-                SCREEN=pygame.display.set_mode((SCREENWITDH,SCREENHEIGHT)) #设置屏幕的大小
-                pygame.display.set_caption("恐龍遊戲-眼睛耳朵不一樣")  #随意定义的游戏标题
-            
-                bg1=MyMap(0,0) #地图1
-                bg2=MyMap(800,0) #地图2
-                #创建小恐龙
-                dinasaur=Dinasaur()
-            
-                addobstacleTimer=0 #初始化障碍物时间为0
-                obstacle_list=[] #障碍物对象的列表
-                
-                
+                score = 0  # 记录分值
+                over = False
+                global SCREEN, FPSLOCK
+                pygame.init()  # 初始化pygame
+                FPSLOCK = pygame.time.Clock()  # 刷新屏幕的时间锁
+                SCREEN = pygame.display.set_mode((SCREENWITDH, SCREENHEIGHT))  # 设置屏幕的大小
+                pygame.display.set_caption("恐龍遊戲-眼睛耳朵不一樣")  # 随意定义的游戏标题
+
+                bg1 = MyMap(0, 0)  # 地图1
+                bg2 = MyMap(800, 0)  # 地图2
+                # 创建小恐龙
+                dinasaur = Dinasaur()
+
+                addobstacleTimer = 0  # 初始化障碍物时间为0
+                obstacle_list = []  # 障碍物对象的列表
+
                 while True:
-                    #判断是否单击了关闭窗口
+                    # 判断是否单击了关闭窗口
                     for event in pygame.event.get():
-                        if event.type==QUIT:
-                            over=True
+                        if event.type == QUIT:
+                            over = True
                             pygame.display.quit()
-                            pygame.quit()  #退出程序(主畫面還在)
+                            pygame.quit()  # 退出程序(主畫面還在)
                             global nn
-                            self.table.insert("", "end", 
-                                              values = [nn, self.name_entry.get(), self.type_combobox.get(),
-                                                        self.difficulty_combobox.get(),self.sound_combobox.get(), int(score)])
-                            cols_name = ['遊玩順序','姓名', '關卡種類', '難度', "聲音", '得分']
-                            nn+=1
+                            self.table.insert("", "end",
+                                              values=[nn, self.name_entry.get(), self.type_combobox.get(),
+                                                      self.difficulty_combobox.get(), self.sound_combobox.get(),
+                                                      int(score)])
+                            cols_name = ['遊玩順序', '姓名', '關卡種類', '難度', "聲音", '得分']
+                            nn += 1
                             for col in cols_name:
                                 self.table.heading(col, text=col)
-                        
-                        if event.type==KEYDOWN and event.key==K_SPACE:  #判断是否按下了空格键
-                            if dinasaur.rect.y ==dinasaur.lowest_y:  #判断恐龙是不是在地面上
-                                dinasaur.jump() #开启恐龙跳动状态
-                                dinasaur.jump_audio.play() #播放音效
 
-                        if event.type==KEYDOWN and event.key==K_DOWN:  #判断是否按下了向下键
-                            if dinasaur.rect.y == dinasaur.lowest_y:  #判断恐龙是不是在地面上
-                                dinasaur.squat() # 開啟恐龍蹲下狀態
-                        
-                        
-                    if over==False:
-                        bg1.map_update() #绘制地图到更新的作用
-                        bg1.map_rolling() #地图移动
+                        if event.type == KEYDOWN and event.key == K_SPACE:  # 判断是否按下了空格键
+                            if dinasaur.rect.y == dinasaur.lowest_y:  # 判断恐龙是不是在地面上
+                                dinasaur.jump()  # 开启恐龙跳动状态
+                                dinasaur.jump_audio.play()  # 播放音效
+
+                        if event.type == KEYDOWN and event.key == K_DOWN:  # 判断是否按下了向下键
+                            if dinasaur.rect.y == dinasaur.lowest_y:  # 判断恐龙是不是在地面上
+                                dinasaur.squat()  # 開啟恐龍蹲下狀態
+
+                    if over == False:
+                        bg1.map_update()  # 绘制地图到更新的作用
+                        bg1.map_rolling()  # 地图移动
                         bg2.map_update()
                         bg2.map_rolling()
-                        dinasaur.move() #移动小恐龙
-                        #绘制恐龙
+                        dinasaur.move()  # 移动小恐龙
+                        # 绘制恐龙
                         dinasaur.draw_dinasour()
-                        #计算障碍物间隔的时间
-                        if addobstacleTimer>=1300:
-                        
+                        # 计算障碍物间隔的时间
+                        if addobstacleTimer >= 1300:
+
                             # 隨機產生障礙物
-                            obstacle_crl = random.randint(0,100)
+                            obstacle_crl = random.randint(0, 100)
                             if obstacle_crl > 50:
-                                #创建障碍物对象
-                                obstacle=Obstacle()
-                                #将障碍物推向添加到列表中
+                                # 创建障碍物对象
+                                obstacle = Obstacle()
+                                # 将障碍物推向添加到列表中
                                 obstacle_list.append(obstacle)
-                            #重置添加障碍物的时间
-                            addobstacleTimer=0
-
-
+                            # 重置添加障碍物的时间
+                            addobstacleTimer = 0
 
                             # 隨機撥放跳蹲指令音效
-                            sound_crl = random.randint(0,100)
+                            sound_crl = random.randint(0, 100)
                             if sound_crl > 70:
-                                sound_r = random.randint(0,1)
+                                sound_r = random.randint(0, 1)
                                 if sound_r == 0:
                                     print("play jump sound")
-                                    dinasaur.jump2_audio.play() #播放跳的指令音效
+                                    dinasaur.jump2_audio.play()  # 播放跳的指令音效
 
                                 if sound_r == 1:
                                     print("play squat sound")
-                                    dinasaur.hear_audio.play() #播放蹲的指令音效
+                                    dinasaur.hear_audio.play()  # 播放蹲的指令音效
 
-                        
                         # 遍历障碍物
                         for i in range(len(obstacle_list)):
-                            #移动障碍物
+                            # 移动障碍物
                             obstacle_list[i].obstacle_move()
-                            #绘制障碍物
-                            obstacle_list[i].draw_obstacle()  
+                            # 绘制障碍物
+                            obstacle_list[i].draw_obstacle()
                             # 視覺關
                             if pygame.sprite.collide_rect(dinasaur, obstacle_list[i]):
                                 print("you fail the game")
-                                over=True
+                                over = True
                                 game_over()
 
                             else:
                                 if (obstacle_list[i].rect.x + obstacle_list[i].rect.width) < dinasaur.rect.x:
-                                    #加分
+                                    # 加分
                                     score += obstacle_list[i].getScore()
                             obstacle_list[i].showScore(score)
-                        
-                    addobstacleTimer +=20  #增加障碍物时间
-                    pygame.display.update() #更新窗口
-                    FPSLOCK.tick(FPS) #多久更新一次
+
+                    addobstacleTimer += 20  # 增加障碍物时间
+                    pygame.display.update()  # 更新窗口
+                    FPSLOCK.tick(FPS)  # 多久更新一次
+
             if __name__ == '__main__':
                 mainGame()
-            
-            
-            
-            
-        elif self.type_combobox.get()=='聽覺關':    
 
-            SCREENWITDH=800   #宽度
-            SCREENHEIGHT=300  #高度
-            FPS=30  #更新画面的时间
-                #定义一个地图类
-            class MyMap:
-                #加载背景图片
-                def __init__(self,x,y):
-                        self.bg = pygame.image.load(os.path.join(mypath, "image/bg.png"))  # background
-                        self.x=x
-                        self.y=y
-                def map_rolling(self):
-                    if self.x<-790: #说明地图已经移动完毕
-                        self.x=800  #给地图新坐
-                    else:
-                        self.x -=10  # 移动5个像素
-                #更新地图
-                def map_update(self):
-                    SCREEN.blit(self.bg,(self.x,self.y))
-            
-            #恐龙类
-            class Dinasaur:
-                def __init__(self):
-                    #初始化小恐龙矩形
-                    self.rect=pygame.Rect(0,0,0,0)
-                    self.jumpState=False  #跳跃的状态
-                    self.squatState=False  #蹲下的状态
-                    self.jumpHeight=100   #跳跃高度
-                    self.squatHeight=-100   #蹲下高度
-                    self.lowest_y=140     #最低坐标
-                    self.jumpValue= 0      #跳跃增变量
-                    self.squatValue= 0      #蹲下增变量
-                    self.dinasaurIndex=0
-                    self.dinasaurIndexGen=cycle([0,1,2,3,4,5])
-                    self.dinasaur_image= (pygame.image.load(os.path.join(mypath, "image/role1.png")).convert_alpha(),
-                                          pygame.image.load(os.path.join(mypath, "image/role1.png")).convert_alpha(),
-                                          pygame.image.load(os.path.join(mypath, "image/role2.png")).convert_alpha(),
-                                          pygame.image.load(os.path.join(mypath, "image/role2.png")).convert_alpha(),
-                                          pygame.image.load(os.path.join(mypath, "image/role3.png")).convert_alpha(),
-                                          pygame.image.load(os.path.join(mypath, "image/role3.png")).convert_alpha())
-                    self.jump_audio=pygame.mixer.Sound(os.path.join(mypath, "audio/jump.wav"))  # 加载音效
-                    self.hear_audio=pygame.mixer.Sound(os.path.join(mypath, "audio/蹲.wav")) #加载音效
-                    self.jump2_audio=pygame.mixer.Sound(os.path.join(mypath, "audio/跳.wav")) #加载音效
-                    self.rect.size=self.dinasaur_image[0].get_size()     #设置小恐龙矩形大小
-                    self.x=50                                            #设置小恐龙的x坐标
-                    self.y=self.lowest_y                                 #设置小恐龙的y坐标
-                    self.rect.topleft=(self.x,self.y)                    #设置左上角为准
-                
-                # 跳躍
-                def jump(self):
-                    self.jumpState = True
-                # 蹲下
-                def squat(self):
-                    self.squatState = True
-                #小恐龍的移動
-                def move(self):
-                    if self.jumpState: # 當處在可起跳狀態
-                        if self.rect.y >= self.lowest_y:
-                            self.jumpValue = - 5  # 以5個像素向上移動
-                        if self.rect.y <= self.lowest_y-self.jumpHeight:
-                            self.jumpValue = 5
-                        self.rect.y += self.jumpValue # 透過循環改變恐龍的Y值
-                        if self.rect.y == self.lowest_y: # 當恐龍回到地面
-                            self.jumpState = False        # 關閉跳躍狀態
-                    if self.squatState:      # 當處在可蹲下狀態
-                        if self.rect.y <= self.lowest_y:
-                            self.squatValue = 5  # 以5個像素向下移動
-                        if self.rect.y >= self.lowest_y - self.squatHeight:
-                            self.squatValue = -5
-                        self.rect.y += self.squatValue # 透過循環改變恐龍的Y值
-                        if self.rect.y == self.lowest_y:  # 小恐龍回到地面
-                            self.squatState = False        # 關閉蹲下狀態
-
-                #繪製小恐龍
-                def draw_dinasour(self):
-                    # 匹配恐龍動圖
-                    dinasaurindex = next(self.dinasaurIndexGen)
-                    # 實現繪製
-                    SCREEN.blit(self.dinasaur_image[dinasaurindex],(self.x,self.rect.y))
-        
-                
-            #障碍物类
-            class Obstacle:
-                score=1 #分数
-                def __init__(self):
-                    #初始化障碍物的矩形
-                    self.rect=pygame.Rect(0,0,0,0)
-                    #加载障碍物的图片
-                    self.stone=pygame.image.load(os.path.join(mypath, "image/obstacle1.png")).convert_alpha() #加载石头
-                    self.cacti=pygame.image.load(os.path.join(mypath, "image/obstacle2.png")).convert_alpha() #加载仙人掌
-                    self.cloud=pygame.image.load(os.path.join(mypath, "image/obstacle3.png")).convert_alpha() #加载雲
-                    
-                    
-                   # 加载分数图片
-                    self.numbers=(pygame.image.load(os.path.join(mypath, "image/0.png")).convert_alpha(), #convert_alpha()透明度
-                                  pygame.image.load(os.path.join(mypath, "image/1.png")).convert_alpha(),
-                                  pygame.image.load(os.path.join(mypath, "image/2.png")).convert_alpha(),
-                                  pygame.image.load(os.path.join(mypath, "image/3.png")).convert_alpha(),
-                                  pygame.image.load(os.path.join(mypath, "image/4.png")).convert_alpha(),
-                                  pygame.image.load(os.path.join(mypath, "image/5.png")).convert_alpha(),
-                                  pygame.image.load(os.path.join(mypath, "image/6.png")).convert_alpha(),
-                                  pygame.image.load(os.path.join(mypath, "image/7.png")).convert_alpha(),
-                                  pygame.image.load(os.path.join(mypath, "image/8.png")).convert_alpha(),
-                                  pygame.image.load(os.path.join(mypath, "image/9.png")).convert_alpha(),
-            
-                                  )
-                    #加载加分的音效
-                    self.score_audio=pygame.mixer.Sound(os.path.join(mypath, "audio/score.wav"))
-                    #创建0，1之间的随机数,0是石头，1是仙人掌
-                    r=random.randint(0,2)
-                    if r == 0:
-                        self.image=self.stone
-                        self.rect.size=self.image.get_size()
-                        #获取位图的宽高
-                        self.width,self.height=self.rect.size
-                        #障碍物绘制坐标
-                        self.x=800
-                        self.y=215
-                        self.rect.center=(self.x,self.y)
-                    elif r == 1:
-                        self.image=self.cacti
-                        self.rect.size=self.image.get_size()
-                        #获取位图的宽高
-                        self.width,self.height=self.rect.size
-                        #障碍物绘制坐标
-                        self.x=800
-                        self.y=215
-                        self.rect.center=(self.x,self.y)
-                    else:
-                        self.image=self.cloud
-                        #根据障碍物位图的宽高设置矩形
-                        self.rect.size=self.image.get_size()
-                        #获取位图的宽高
-                        self.width,self.height=self.rect.size
-                        #障碍物绘制坐标
-                        self.x=800
-                        self.y=150-(self.height/2)
-                        self.rect.center=(self.x,self.y)
-                        
-            
-                #移动障碍物
-                def obstacle_move(self):
-                    self.rect.x -=10
-
-                
-                #绘制障碍物
-                def draw_obstacle(self):
-                    SCREEN.blit(self.image,(self.rect.x,self.rect.y))
-            
-                #获取分数
-                def getScore(self):
-                    self.score
-                    tmp=self.score
-                    if tmp==1:
-                        self.score_audio.play()
-                    self.score=0
-                    return tmp
-            
-                # 顯示分數
-                def showScore(self,score):
-                    self.scoreDigits = [int(x) for x in list(str(score))]
-                    totalWidth = 0 # 要顯示的數字的總寬度
-                    for digit in self.scoreDigits:
-                        # 獲取積分圖片的寬度
-                        totalWidth += self.numbers[digit].get_width()
-                    # 分數横向位置
-                    xoffset = (SCREENWITDH - totalWidth) / 2
-                    for digit in self.scoreDigits:
-                        # 繪製分数
-                        SCREEN.blit(self.numbers[digit],(xoffset,SCREENHEIGHT * 0.1))
-                        # 隨著數字增加改變位置
-                        xoffset+=self.numbers[digit].get_width()
-                        
-                # 顯示倒數秒數
-                def showCountdown(self, ms):
-                    self.msDigits = [int(x) for x in list(str(ms))]
-                    totalWidth = 0 # 要顯示的倒數秒數的總寬度
-                    for digit in self.msDigits:
-                        # 獲取倒數秒數的寬度
-                        totalWidth += self.numbers[digit].get_width()            
-                    # 倒數秒數的橫向位置
-                    xoffset = ((SCREENWITDH - totalWidth)/2)+300
-                    for digit in self.msDigits:
-                        # 繪製秒數
-                        SCREEN.blit(self.numbers[digit],(xoffset,SCREENHEIGHT*0.1))
-                        #随着秒數增加改變位置
-                        xoffset += self.numbers[digit].get_width()        
-            
-            #游戏结束的方法
-            def game_over():
-                bump_audio=pygame.mixer.Sound(os.path.join(mypath, "audio/bump.wav"))
-                bump_audio.play()
-                #获取窗口宽高
-                screen_w=pygame.display.Info().current_w
-                screen_h=pygame.display.Info().current_h
-                #加载游戏结束的图片
-                over_img=pygame.image.load(os.path.join(mypath, "image/gameover.png")).convert_alpha()
-                #绘制游戏结束的图标在窗体中间
-                SCREEN.blit(over_img,((screen_w-over_img.get_width())/2,(screen_h-over_img.get_height())/2))
-            
-            
+        elif self.type_combobox.get() == '聽覺關':
             def mainGame():
-                sound_r = -1 # -1是預設沒有聲音狀態, 0是蹲，1是跳
+                sound_r = -1  # -1是預設沒有聲音狀態, 0是蹲，1是跳
                 game_prepared = False
-                score=0 #记录分值
-                over=False
-                global SCREEN,FPSLOCK
-                pygame.init() #初始化pygame
-                FPSLOCK=pygame.time.Clock() #刷新屏幕的时间锁
-                SCREEN=pygame.display.set_mode((SCREENWITDH,SCREENHEIGHT)) #设置屏幕的大小
-                pygame.display.set_caption("恐龍遊戲-眼睛耳朵不一樣")  #随意定义的游戏标题
-            
-                bg1=MyMap(0,0) #地图1
-                bg2=MyMap(800,0) #地图2
-                #创建小恐龙
-                dinasaur=Dinasaur()
-            
-                addobstacleTimer=0 #初始化障碍物时间为0         
-                obstacle_list=[] #障碍物对象的列表
-                
+                score = 0  # 记录分值
+                over = False
+                global SCREEN, FPSLOCK
+                pygame.init()  # 初始化pygame
+                FPSLOCK = pygame.time.Clock()  # 刷新屏幕的时间锁
+                SCREEN = pygame.display.set_mode((SCREENWITDH, SCREENHEIGHT))  # 设置屏幕的大小
+                pygame.display.set_caption("恐龍遊戲-眼睛耳朵不一樣")  # 随意定义的游戏标题
+
+                bg1 = MyMap(0, 0)  # 地图1
+                bg2 = MyMap(800, 0)  # 地图2
+                # 创建小恐龙
+                dinasaur = Dinasaur()
+
+                addobstacleTimer = 0  # 初始化障碍物时间为0
+                obstacle_list = []  # 障碍物对象的列表
+
                 success = False
                 num_of_failure = 0
                 max_num_of_failure = 150
-                
+
                 while True:
-                    #判断是否单击了关闭窗口
+                    # 判断是否单击了关闭窗口
                     for event in pygame.event.get():
-                        if event.type==QUIT:
-                            over=True
+                        if event.type == QUIT:
+                            over = True
                             pygame.display.quit()
-                            pygame.quit()  #退出程序(主畫面還在)
+                            pygame.quit()  # 退出程序(主畫面還在)
                             global nn
-                            self.table.insert("", "end", 
-                                              values = [nn, self.name_entry.get(), self.type_combobox.get(),
-                                                        self.difficulty_combobox.get(),self.sound_combobox.get(), int(score)])
-                            cols_name = ['遊玩順序','姓名', '關卡種類', '難度', "聲音", '得分']
-                            nn+=1
+                            self.table.insert("", "end",
+                                              values=[nn, self.name_entry.get(), self.type_combobox.get(),
+                                                      self.difficulty_combobox.get(), self.sound_combobox.get(),
+                                                      int(score)])
+                            cols_name = ['遊玩順序', '姓名', '關卡種類', '難度', "聲音", '得分']
+                            nn += 1
                             for col in cols_name:
                                 self.table.heading(col, text=col)
-                        
-                        if event.type==KEYDOWN and event.key==K_SPACE:  #判断是否按下了空格键
-                            if dinasaur.rect.y ==dinasaur.lowest_y:  #判断恐龙是不是在地面上
-                                dinasaur.jump() #开启恐龙跳动状态
-                                dinasaur.jump_audio.play() #播放音效
+
+                        if event.type == KEYDOWN and event.key == K_SPACE:  # 判断是否按下了空格键
+                            if dinasaur.rect.y == dinasaur.lowest_y:  # 判断恐龙是不是在地面上
+                                dinasaur.jump()  # 开启恐龙跳动状态
+                                dinasaur.jump_audio.play()  # 播放音效
 
                             if sound_r == 0:
                                 print("jump")
@@ -715,9 +493,9 @@ class GUI():
                                 sound_r = -1
                                 success = False
 
-                        if event.type==KEYDOWN and event.key==K_DOWN:  #判断是否按下了向下键
-                            if dinasaur.rect.y == dinasaur.lowest_y:  #判断恐龙是不是在地面上
-                                dinasaur.squat() # 開啟恐龍蹲下狀態
+                        if event.type == KEYDOWN and event.key == K_DOWN:  # 判断是否按下了向下键
+                            if dinasaur.rect.y == dinasaur.lowest_y:  # 判断恐龙是不是在地面上
+                                dinasaur.squat()  # 開啟恐龍蹲下狀態
 
                             if sound_r == 1:
                                 print("squat")
@@ -728,333 +506,91 @@ class GUI():
                                 obstacle.score_audio.play()
                                 sound_r = -1
                                 success = False
-                        
-                        
-                    if over==False:
-                        bg1.map_update() #绘制地图到更新的作用
-                        bg1.map_rolling() #地图移动
+
+                    if over == False:
+                        bg1.map_update()  # 绘制地图到更新的作用
+                        bg1.map_rolling()  # 地图移动
                         bg2.map_update()
                         bg2.map_rolling()
-                        dinasaur.move() #移动小恐龙
-                        #绘制恐龙
+                        dinasaur.move()  # 移动小恐龙
+                        # 绘制恐龙
                         dinasaur.draw_dinasour()
-                        #计算障碍物间隔的时间
-                        if addobstacleTimer>=1300:
-                        
-                            # 隨機產生障礙物
-                            obstacle_crl = random.randint(0,100)
-                            if obstacle_crl > 50:
-                                #创建障碍物对象
-                                obstacle=Obstacle()
-                                #将障碍物推向添加到列表中
-                                obstacle_list.append(obstacle)
-                            #重置添加障碍物的时间
-                            addobstacleTimer=0
+                        # 计算障碍物间隔的时间
+                        if addobstacleTimer >= 1300:
 
+                            # 隨機產生障礙物
+                            obstacle_crl = random.randint(0, 100)
+                            if obstacle_crl > 50:
+                                # 创建障碍物对象
+                                obstacle = Obstacle()
+                                # 将障碍物推向添加到列表中
+                                obstacle_list.append(obstacle)
+                            # 重置添加障碍物的时间
+                            addobstacleTimer = 0
 
                             # 隨機撥放跳蹲指令音效
-                            sound_crl = random.randint(0,100)
+                            sound_crl = random.randint(0, 100)
                             if sound_crl > 70:
-                                sound_r = random.randint(0,1)
+                                sound_r = random.randint(0, 1)
                                 if sound_r == 0:
                                     print("play jump sound")
-                                    dinasaur.jump2_audio.play() #播放跳的指令音效
+                                    dinasaur.jump2_audio.play()  # 播放跳的指令音效
 
                                 if sound_r == 1:
                                     print("play squat sound")
-                                    dinasaur.hear_audio.play() #播放蹲的指令音效
+                                    dinasaur.hear_audio.play()  # 播放蹲的指令音效
 
-                        
-                        
-                        
-                        
                         # 遍历障碍物
                         for i in range(len(obstacle_list)):
-                            #移动障碍物
+                            # 移动障碍物
                             obstacle_list[i].obstacle_move()
-                            #绘制障碍物
+                            # 绘制障碍物
                             obstacle_list[i].draw_obstacle()
 
                             # 聽覺關
-                            if  not success and sound_r != -1:  #如果進入聽覺遊戲時且未作出蹲下時
-                                num_of_failure += 1 #失敗次數加1
+                            if not success and sound_r != -1:  # 如果進入聽覺遊戲時且未作出蹲下時
+                                num_of_failure += 1  # 失敗次數加1
                                 print(max_num_of_failure - num_of_failure)
-                                if pygame.sprite.collide_rect(dinasaur, obstacle_list[i]): # 聽覺關時遇到障礙物不會死
-                                    over=False
-                                if num_of_failure >= max_num_of_failure: # 若未在容錯次數內完成動作
-                                    print("you fail the extra game") #遊戲失敗
+                                if pygame.sprite.collide_rect(dinasaur, obstacle_list[i]):  # 聽覺關時遇到障礙物不會死
+                                    over = False
+                                if num_of_failure >= max_num_of_failure:  # 若未在容錯次數內完成動作
+                                    print("you fail the extra game")  # 遊戲失敗
                                     over = True
                                     game_over()
 
                             obstacle_list[i].showScore(score)
 
-                            Countdown = ( max_num_of_failure - num_of_failure) // FPS
+                            Countdown = (max_num_of_failure - num_of_failure) // FPS
                             if Countdown >= 0:
                                 obstacle_list[i].showCountdown(Countdown)
-                        
-                    addobstacleTimer +=20  #增加障碍物时间
-                    pygame.display.update() #更新窗口
-                    FPSLOCK.tick(FPS) #多久更新一次
 
-            if __name__ == '__main__':
-                mainGame()
-        
-        
-        
-        
+                    addobstacleTimer += 20  # 增加障碍物时间
+                    pygame.display.update()  # 更新窗口
+                    FPSLOCK.tick(FPS)  # 多久更新一次
+
         else:  # 挑戰關
-            SCREENWITDH=800   #宽度
-            SCREENHEIGHT=300  #高度
-            FPS=30  #更新画面的时间
-                #定义一个地图类
-            class MyMap:
-                #加载背景图片
-                def __init__(self,x,y):
-                        self.bg = pygame.image.load(os.path.join(mypath, "image/bg.png"))  # background
-                        self.x=x
-                        self.y=y
-                def map_rolling(self):
-                    if self.x<-790: #说明地图已经移动完毕
-                        self.x=800  #给地图新坐
-                    else:
-                        self.x -=10  # 移动5个像素
-                #更新地图
-                def map_update(self):
-                    SCREEN.blit(self.bg,(self.x,self.y))
-            
-            #恐龙类
-            class Dinasaur:
-                def __init__(self):
-                    #初始化小恐龙矩形
-                    self.rect=pygame.Rect(0,0,0,0)
-                    self.jumpState=False  #跳跃的状态
-                    self.squatState=False  #蹲下的状态
-                    self.jumpHeight=100   #跳跃高度
-                    self.squatHeight=-100   #蹲下高度
-                    self.lowest_y=140     #最低坐标
-                    self.jumpValue= 0      #跳跃增变量
-                    self.squatValue= 0      #蹲下增变量
-                    self.dinasaurIndex=0
-                    self.dinasaurIndexGen=cycle([0,1,2,3,4,5])
-                    self.dinasaur_image= (pygame.image.load(os.path.join(mypath, "image/role1.png")).convert_alpha(),
-                                          pygame.image.load(os.path.join(mypath, "image/role1.png")).convert_alpha(),
-                                          pygame.image.load(os.path.join(mypath, "image/role2.png")).convert_alpha(),
-                                          pygame.image.load(os.path.join(mypath, "image/role2.png")).convert_alpha(),
-                                          pygame.image.load(os.path.join(mypath, "image/role3.png")).convert_alpha(),
-                                          pygame.image.load(os.path.join(mypath, "image/role3.png")).convert_alpha())
-                    self.jump_audio=pygame.mixer.Sound(os.path.join(mypath, "audio/jump.wav"))  # 加载音效
-                    self.hear_audio=pygame.mixer.Sound(os.path.join(mypath, "audio/蹲.wav")) #加载音效
-                    self.jump2_audio=pygame.mixer.Sound(os.path.join(mypath, "audio/跳.wav")) #加载音效
-                    self.rect.size=self.dinasaur_image[0].get_size()     #设置小恐龙矩形大小
-                    self.x=50                                            #设置小恐龙的x坐标
-                    self.y=self.lowest_y                                 #设置小恐龙的y坐标
-                    self.rect.topleft=(self.x,self.y)                    #设置左上角为准
-                
-                # 跳躍
-                def jump(self):
-                    self.jumpState = True
-                # 蹲下
-                def squat(self):
-                    self.squatState = True
-                #小恐龍的移動
-                def move(self):
-                    if self.jumpState: # 當處在可起跳狀態
-                        if self.rect.y >= self.lowest_y:
-                            self.jumpValue = - 5  # 以5個像素向上移動
-                        if self.rect.y <= self.lowest_y-self.jumpHeight:
-                            self.jumpValue = 5
-                        self.rect.y += self.jumpValue # 透過循環改變恐龍的Y值
-                        if self.rect.y == self.lowest_y: # 當恐龍回到地面
-                            self.jumpState = False        # 關閉跳躍狀態
-                    if self.squatState:      # 當處在可蹲下狀態
-                        if self.rect.y <= self.lowest_y:
-                            self.squatValue = 5  # 以5個像素向下移動
-                        if self.rect.y >= self.lowest_y - self.squatHeight:
-                            self.squatValue = -5
-                        self.rect.y += self.squatValue # 透過循環改變恐龍的Y值
-                        if self.rect.y == self.lowest_y:  # 小恐龍回到地面
-                            self.squatState = False        # 關閉蹲下狀態
 
-                #繪製小恐龍
-                def draw_dinasour(self):
-                    # 匹配恐龍動圖
-                    dinasaurindex = next(self.dinasaurIndexGen)
-                    # 實現繪製
-                    SCREEN.blit(self.dinasaur_image[dinasaurindex],(self.x,self.rect.y))
-        
-                
-            #障碍物类
-            class Obstacle:
-                score=1 #分数
-                def __init__(self):
-                    #初始化障碍物的矩形
-                    self.rect=pygame.Rect(0,0,0,0)
-                    #加载障碍物的图片
-                    self.stone=pygame.image.load(os.path.join(mypath, "image/obstacle1.png")).convert_alpha() #加载石头
-                    self.cacti=pygame.image.load(os.path.join(mypath, "image/obstacle2.png")).convert_alpha() #加载仙人掌
-                    self.cloud=pygame.image.load(os.path.join(mypath, "image/obstacle3.png")).convert_alpha() #加载雲
-                    
-                    
-                   # 加载分数图片
-                    self.numbers=(pygame.image.load(os.path.join(mypath, "image/0.png")).convert_alpha(), #convert_alpha()透明度
-                                  pygame.image.load(os.path.join(mypath, "image/1.png")).convert_alpha(),
-                                  pygame.image.load(os.path.join(mypath, "image/2.png")).convert_alpha(),
-                                  pygame.image.load(os.path.join(mypath, "image/3.png")).convert_alpha(),
-                                  pygame.image.load(os.path.join(mypath, "image/4.png")).convert_alpha(),
-                                  pygame.image.load(os.path.join(mypath, "image/5.png")).convert_alpha(),
-                                  pygame.image.load(os.path.join(mypath, "image/6.png")).convert_alpha(),
-                                  pygame.image.load(os.path.join(mypath, "image/7.png")).convert_alpha(),
-                                  pygame.image.load(os.path.join(mypath, "image/8.png")).convert_alpha(),
-                                  pygame.image.load(os.path.join(mypath, "image/9.png")).convert_alpha(),
-            
-                                  )
-                    #加载加分的音效
-                    self.score_audio=pygame.mixer.Sound(os.path.join(mypath, "audio/score.wav"))
-                    #创建0，1之间的随机数,0是石头，1是仙人掌
-                    r=random.randint(0,2)
-                    if r == 0:
-                        self.image=self.stone
-                        self.rect.size=self.image.get_size()
-                        #获取位图的宽高
-                        self.width,self.height=self.rect.size
-                        #障碍物绘制坐标
-                        self.x=800
-                        self.y=215
-                        self.rect.center=(self.x,self.y)
-                    elif r == 1:
-                        self.image=self.cacti
-                        self.rect.size=self.image.get_size()
-                        #获取位图的宽高
-                        self.width,self.height=self.rect.size
-                        #障碍物绘制坐标
-                        self.x=800
-                        self.y=215
-                        self.rect.center=(self.x,self.y)
-                    else:
-                        self.image=self.cloud
-                        #根据障碍物位图的宽高设置矩形
-                        self.rect.size=self.image.get_size()
-                        #获取位图的宽高
-                        self.width,self.height=self.rect.size
-                        #障碍物绘制坐标
-                        self.x=800
-                        self.y=150-(self.height/2)
-                        self.rect.center=(self.x,self.y)
-                        
-            
-                #移动障碍物
-                def obstacle_move(self):
-                    self.rect.x -=10
-
-                
-                #绘制障碍物
-                def draw_obstacle(self):
-                    SCREEN.blit(self.image,(self.rect.x,self.rect.y))
-            
-                #获取分数
-                def getScore(self):
-                    self.score
-                    tmp=self.score
-                    if tmp==1:
-                        self.score_audio.play()
-                    self.score=0
-                    return tmp
-            
-                # 顯示分數
-                def showScore(self,score):
-                    self.scoreDigits = [int(x) for x in list(str(score))]
-                    totalWidth = 0 # 要顯示的數字的總寬度
-                    for digit in self.scoreDigits:
-                        # 獲取積分圖片的寬度
-                        totalWidth += self.numbers[digit].get_width()
-                    # 分數横向位置
-                    xoffset = (SCREENWITDH - totalWidth) / 2
-                    for digit in self.scoreDigits:
-                        # 繪製分数
-                        SCREEN.blit(self.numbers[digit],(xoffset,SCREENHEIGHT * 0.1))
-                        # 隨著數字增加改變位置
-                        xoffset+=self.numbers[digit].get_width()
-                        
-                # 顯示倒數秒數
-                def showCountdown(self, ms):
-                    self.msDigits = [int(x) for x in list(str(ms))]
-                    totalWidth = 0 # 要顯示的倒數秒數的總寬度
-                    for digit in self.msDigits:
-                        # 獲取倒數秒數的寬度
-                        totalWidth += self.numbers[digit].get_width()            
-                    # 倒數秒數的橫向位置
-                    xoffset = ((SCREENWITDH - totalWidth)/2)+300
-                    for digit in self.msDigits:
-                        # 繪製秒數
-                        SCREEN.blit(self.numbers[digit],(xoffset,SCREENHEIGHT*0.1))
-                        #随着秒數增加改變位置
-                        xoffset += self.numbers[digit].get_width()        
-            
-            #游戏结束的方法
-            def game_over():
-                bump_audio=pygame.mixer.Sound(os.path.join(mypath, "audio/bump.wav"))
-                bump_audio.play()
-                #获取窗口宽高
-                screen_w=pygame.display.Info().current_w
-                screen_h=pygame.display.Info().current_h
-                #加载游戏结束的图片
-                over_img=pygame.image.load(os.path.join(mypath, "image/gameover.png")).convert_alpha()
-                #绘制游戏结束的图标在窗体中间
-                SCREEN.blit(over_img,((screen_w-over_img.get_width())/2,(screen_h-over_img.get_height())/2))
-            
-            # 聽覺關遊戲圖片載入
-            def Hear_game():    
-                # 獲取窗口寬高
-                screen_w=pygame.display.Info().current_w
-                screen_h=pygame.display.Info().current_h
-                # 載入聽覺關遊戲的圖片
-                hear_img=pygame.image.load(os.path.join(mypath, "image\\hearing.png")).convert_alpha()
-                # 繪製聽覺關遊戲的圖標在視窗中間
-                SCREEN.blit(hear_img,((screen_w-hear_img.get_width()) / 2,(screen_h-hear_img.get_height()) / 2))
-                for i in range(20):
-                    pygame.display.update()
-                    FPSLOCK.tick(FPS) 
-
-            # 視覺關遊戲圖片載入
-            def Watch_game():    
-                # 獲取窗口寬高
-                screen_w = pygame.display.Info().current_w
-                screen_h = pygame.display.Info().current_h
-                # 載入視覺關遊戲的圖片
-                watch_img = pygame.image.load(os.path.join(mypath, "image\\watching.png")).convert_alpha()
-                # 繪製視覺關遊戲的圖標在視窗中間
-                SCREEN.blit(watch_img,((screen_w-watch_img.get_width()) / 2,(screen_h-watch_img.get_height()) / 2))
-                for i in range(20):
-                    pygame.display.update()
-                    FPSLOCK.tick(FPS) 
-
-            def gameStartPrepared(game_prepared):       
-                print("game starting")        
-                game_state = "Watching"
-                Watch_game()
-                game_prepared = True
-            
             def mainGame():
-                sound_r = -1 # -1是預設沒有聲音狀態, 0是蹲，1是跳
+                sound_r = -1  # -1是預設沒有聲音狀態, 0是蹲，1是跳
                 game_prepared = False
-                score=0 #记录分值
-                over=False
-                global SCREEN,FPSLOCK
-                pygame.init() #初始化pygame
-                FPSLOCK=pygame.time.Clock() #刷新屏幕的时间锁
-                SCREEN=pygame.display.set_mode((SCREENWITDH,SCREENHEIGHT)) #设置屏幕的大小
-                pygame.display.set_caption("恐龍遊戲-眼睛耳朵不一樣")  #随意定义的游戏标题
-            
-                bg1=MyMap(0,0) #地图1
-                bg2=MyMap(800,0) #地图2
-                #创建小恐龙
-                dinasaur=Dinasaur()
-            
-                addobstacleTimer=0 #初始化障碍物时间为0
-                addLevelTimer=0 #初始化關卡變數
-            
-                obstacle_list=[] #障碍物对象的列表
-                
+                score = 0  # 记录分值
+                over = False
+                global SCREEN, FPSLOCK
+                pygame.init()  # 初始化pygame
+                FPSLOCK = pygame.time.Clock()  # 刷新屏幕的时间锁
+                SCREEN = pygame.display.set_mode((SCREENWITDH, SCREENHEIGHT))  # 设置屏幕的大小
+                pygame.display.set_caption("恐龍遊戲-眼睛耳朵不一樣")  # 随意定义的游戏标题
+
+                bg1 = MyMap(0, 0)  # 地图1
+                bg2 = MyMap(800, 0)  # 地图2
+                # 创建小恐龙
+                dinasaur = Dinasaur()
+
+                addobstacleTimer = 0  # 初始化障碍物时间为0
+                addLevelTimer = 0  # 初始化關卡變數
+
+                obstacle_list = []  # 障碍物对象的列表
+
                 success = False
                 num_of_failure = 0
                 max_num_of_failure = 150
@@ -1062,27 +598,28 @@ class GUI():
 
                 immune = False
                 immune_time = 0
-                
+
                 while True:
-                    #判断是否单击了关闭窗口
+                    # 判断是否单击了关闭窗口
                     for event in pygame.event.get():
-                        if event.type==QUIT:
-                            over=True
+                        if event.type == QUIT:
+                            over = True
                             pygame.display.quit()
-                            pygame.quit()  #退出程序(主畫面還在)
+                            pygame.quit()  # 退出程序(主畫面還在)
                             global nn
-                            self.table.insert("", "end", 
-                                              values = [nn, self.name_entry.get(), self.type_combobox.get(),
-                                                        self.difficulty_combobox.get(),self.sound_combobox.get(), int(score)])
-                            cols_name = ['遊玩順序','姓名', '關卡種類', '難度', "聲音", '得分']
-                            nn+=1
+                            self.table.insert("", "end",
+                                              values=[nn, self.name_entry.get(), self.type_combobox.get(),
+                                                      self.difficulty_combobox.get(), self.sound_combobox.get(),
+                                                      int(score)])
+                            cols_name = ['遊玩順序', '姓名', '關卡種類', '難度', "聲音", '得分']
+                            nn += 1
                             for col in cols_name:
                                 self.table.heading(col, text=col)
-                        
-                        if event.type==KEYDOWN and event.key==K_SPACE:  #判断是否按下了空格键
-                            if dinasaur.rect.y ==dinasaur.lowest_y:  #判断恐龙是不是在地面上
-                                dinasaur.jump() #开启恐龙跳动状态
-                                dinasaur.jump_audio.play() #播放音效
+
+                        if event.type == KEYDOWN and event.key == K_SPACE:  # 判断是否按下了空格键
+                            if dinasaur.rect.y == dinasaur.lowest_y:  # 判断恐龙是不是在地面上
+                                dinasaur.jump()  # 开启恐龙跳动状态
+                                dinasaur.jump_audio.play()  # 播放音效
 
                             if game_state == "Hearing" and sound_r == 0:
                                 print("jump")
@@ -1094,9 +631,9 @@ class GUI():
                                 sound_r = -1
                                 success = False
 
-                        if event.type==KEYDOWN and event.key==K_DOWN:  #判断是否按下了向下键
-                            if dinasaur.rect.y == dinasaur.lowest_y:  #判断恐龙是不是在地面上
-                                dinasaur.squat() # 開啟恐龍蹲下狀態
+                        if event.type == KEYDOWN and event.key == K_DOWN:  # 判断是否按下了向下键
+                            if dinasaur.rect.y == dinasaur.lowest_y:  # 判断恐龙是不是在地面上
+                                dinasaur.squat()  # 開啟恐龍蹲下狀態
 
                             if game_state == "Hearing" and sound_r == 1:
                                 print("squat")
@@ -1107,83 +644,79 @@ class GUI():
                                 obstacle.score_audio.play()
                                 sound_r = -1
                                 success = False
-                        
-                        
-                    if over==False:
-                        bg1.map_update() #绘制地图到更新的作用
-                        bg1.map_rolling() #地图移动
+
+                    if over == False:
+                        bg1.map_update()  # 绘制地图到更新的作用
+                        bg1.map_rolling()  # 地图移动
                         bg2.map_update()
                         bg2.map_rolling()
-                        dinasaur.move() #移动小恐龙
-                        #绘制恐龙
+                        dinasaur.move()  # 移动小恐龙
+                        # 绘制恐龙
                         dinasaur.draw_dinasour()
-                        #计算障碍物间隔的时间
-                        if addobstacleTimer>=1300:
-                        
+                        # 计算障碍物间隔的时间
+                        if addobstacleTimer >= 1300:
+
                             # 隨機產生障礙物
-                            obstacle_crl = random.randint(0,100)
+                            obstacle_crl = random.randint(0, 100)
                             if obstacle_crl > 50:
-                                #创建障碍物对象
-                                obstacle=Obstacle()
-                                #将障碍物推向添加到列表中
+                                # 创建障碍物对象
+                                obstacle = Obstacle()
+                                # 将障碍物推向添加到列表中
                                 obstacle_list.append(obstacle)
-                            #重置添加障碍物的时间
-                            addobstacleTimer=0
+                            # 重置添加障碍物的时间
+                            addobstacleTimer = 0
 
                             # 關卡控制
 
-                            if addLevelTimer >= 2000 and dinasaur.rect.y ==dinasaur.lowest_y:  #判断恐龙是不是在地面上
+                            if addLevelTimer >= 2000 and dinasaur.rect.y == dinasaur.lowest_y:  # 判断恐龙是不是在地面上
                                 print(addLevelTimer)
                                 # 視覺關
-                                r=random.randint(0,100)
+                                r = random.randint(0, 100)
                                 if r > 50 and game_state != "Watching":
                                     immune = True
                                     immune_time = 100
                                     game_state = "Watching"
                                     print("start watch game")
-                                    Watch_game()
-                                    addLevelTimer=0
+                                    what_game('image/watching.png')
+                                    addLevelTimer = 0
 
-                            # 聽覺關
+                                # 聽覺關
                                 if r < 50 and game_state != "Hearing":
                                     immune = True
                                     immune_time = 5
                                     game_state = "Hearing"
                                     print("start Hearing game")
-                                    Hear_game()
+                                    what_game('image/hear.png')
                                     success = False
-                                    addLevelTimer=0
+                                    addLevelTimer = 0
 
                             # 隨機撥放跳蹲指令音效
-                            sound_crl = random.randint(0,100)
+                            sound_crl = random.randint(0, 100)
                             if sound_crl > 70:
-                                sound_r = random.randint(0,1)
+                                sound_r = random.randint(0, 1)
                                 if sound_r == 0:
                                     print("play jump sound")
-                                    dinasaur.jump2_audio.play() #播放跳的指令音效
+                                    dinasaur.jump2_audio.play()  # 播放跳的指令音效
                                     if game_state == "Watching":
-                                        sound_r = -1 # 回歸預設
+                                        sound_r = -1  # 回歸預設
                                 if sound_r == 1:
                                     print("play squat sound")
-                                    dinasaur.hear_audio.play() #播放蹲的指令音效
+                                    dinasaur.hear_audio.play()  # 播放蹲的指令音效
                                     if game_state == "Watching":
-                                        sound_r = -1 # 回歸預設
-                        
-                        
-                        
-                        
+                                        sound_r = -1  # 回歸預設
+
                         # 遍历障碍物
                         for i in range(len(obstacle_list)):
-                            #移动障碍物
+                            # 移动障碍物
                             obstacle_list[i].obstacle_move()
-                            #绘制障碍物
+                            # 绘制障碍物
                             obstacle_list[i].draw_obstacle()
 
                             # 如果是免疫狀態
                             if immune == True:
                                 immune_time -= 1
                                 print('im', immune_time)
-                                #print(immune)
+                                # print(immune)
                                 if immune_time <= 0:
                                     immune = False
 
@@ -1194,47 +727,42 @@ class GUI():
                                 if game_state == "Watching":
                                     if pygame.sprite.collide_rect(dinasaur, obstacle_list[i]):
                                         print("you fail the game")
-                                        over=True
+                                        over = True
                                         game_over()
 
                                     else:
                                         if (obstacle_list[i].rect.x + obstacle_list[i].rect.width) < dinasaur.rect.x:
-                                            #加分
+                                            # 加分
                                             score += obstacle_list[i].getScore()
 
-
                                 # 聽覺關
-                                if game_state == "Hearing" and not success and sound_r != -1:  #如果進入聽覺遊戲時且未作出蹲下時
-                                    num_of_failure += 1 #失敗次數加1
+                                if game_state == "Hearing" and not success and sound_r != -1:  # 如果進入聽覺遊戲時且未作出蹲下時
+                                    num_of_failure += 1  # 失敗次數加1
                                     print(max_num_of_failure - num_of_failure)
-                                    if pygame.sprite.collide_rect(dinasaur, obstacle_list[i]): # 聽覺關時遇到障礙物不會死
-                                        over=False
-                                    if num_of_failure >= max_num_of_failure: # 若未在容錯次數內完成動作
-                                        print("you fail the extra game") #遊戲失敗
+                                    if pygame.sprite.collide_rect(dinasaur, obstacle_list[i]):  # 聽覺關時遇到障礙物不會死
+                                        over = False
+                                    if num_of_failure >= max_num_of_failure:  # 若未在容錯次數內完成動作
+                                        print("you fail the extra game")  # 遊戲失敗
                                         over = True
                                         game_over()
-                                        #exit() #退出程序
+                                        # exit() #退出程序
                             obstacle_list[i].showScore(score)
 
-
-                            Countdown = ( max_num_of_failure - num_of_failure) // FPS
+                            Countdown = (max_num_of_failure - num_of_failure) // FPS
                             if Countdown >= 0:
                                 obstacle_list[i].showCountdown(Countdown)
-                        
-                    addobstacleTimer +=20  #增加障碍物时间
-                    addLevelTimer += 20 # 增加關卡的時間
-                    pygame.display.update() #更新窗口
-                    FPSLOCK.tick(FPS) #多久更新一次
-        
-        
-        
+
+                    addobstacleTimer += 20  # 增加障碍物时间
+                    addLevelTimer += 20  # 增加關卡的時間
+                    pygame.display.update()  # 更新窗口
+                    FPSLOCK.tick(FPS)  # 多久更新一次
+
             if __name__ == '__main__':
                 mainGame()
-        
-        
-        
-        
+
+        if __name__ == '__main__':
+            mainGame()
+
 
 if __name__ == "__main__":
     G = GUI()
-    G.gui()
