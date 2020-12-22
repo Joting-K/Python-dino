@@ -749,9 +749,6 @@ class GUI():
                     pygame.display.update()  # 更新窗口
                     FPSLOCK.tick(FPS)  # 多久更新一次
 
-            if __name__ == '__main__':
-                mainGame()
-
         if __name__ == '__main__':
             mainGame()
 
