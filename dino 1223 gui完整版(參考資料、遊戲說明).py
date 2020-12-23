@@ -19,7 +19,7 @@ from PIL import ImageTk, Image
 
 # 使用者介面 使用tk
 nn = 1  #  遊玩順序
-path = "C:/Users/ke653/Desktop/dinosaur-master/dinosaur-master"
+path = "C:/Users/ke653/Desktop/Python-dino"
 
 
 class GUI():
@@ -36,7 +36,7 @@ class GUI():
         photo = ImageTk.PhotoImage(img)
         self.canvas.create_image(1250 / 2, 350, image=photo)
         x = 228
-        y = 230
+        y = 272
         xgap = 100
         ygap = 35
         i = 0
@@ -57,11 +57,6 @@ class GUI():
         self.type_combobox.place(x=x + xgap, y=y + i * ygap, width=150)
         i += 1.7
 
-        self.difficulty_combobox = ttk.Combobox(self.gui, textvariable=tk.StringVar(), font=('微軟正黑體', 20, "bold"))
-        self.difficulty_combobox["value"] = ('簡單', '普通', '難')
-        self.difficulty_combobox.current(0)
-        self.difficulty_combobox.place(x=x + xgap, y=y + i * ygap, width=150)
-        i += 1.7
 
         self.sound_combobox = ttk.Combobox(self.gui, textvariable=tk.StringVar(), font=('微軟正黑體', 20, "bold"))
         self.sound_combobox["value"] = ['性感男聲', '平靜女聲']
@@ -82,7 +77,7 @@ class GUI():
         self.ref_button.place(x=500, y=550, width=150)
         i += 2
 
-        cols_name = ['順序', '姓名', '種類', '難度', "聲音", '得分']
+        cols_name = ['順序', '姓名', '種類', "聲音", '得分']
         self.table = ttk.Treeview(self.gui, columns=cols_name, show='headings', height=32)
         style_head = ttk.Style()
         style_head.theme_use("clam")
@@ -90,7 +85,7 @@ class GUI():
         style_head.configure("Treeview", font=('微軟正黑體', 13), background='#E9C85D', foreground='red',
                              fieldbackground='LightGoldenrod')
         for col in cols_name:
-            self.table.column(col, minwidth=0, width=79, stretch=False, anchor='center')
+            self.table.column(col, minwidth=0, width=94, stretch=False, anchor='center')
 
         for col in cols_name:
             self.table.heading(col, text=col)
@@ -722,7 +717,7 @@ class GUI():
                             self.table.insert("", "end", 
                                               values = [nn, self.name_entry.get(), self.type_combobox.get(),
                                                         self.difficulty_combobox.get(),self.sound_combobox.get(), int(score)])
-                            cols_name = ['遊玩順序','姓名', '關卡種類', '難度', "聲音", '得分']
+                            cols_name = ['順序','姓名', '種類', "聲音", '得分']
                             nn+=1
                             for col in cols_name:
                                 self.table.heading(col, text=col)
