@@ -400,8 +400,8 @@ class GUI():
                             global nn
                             self.table.insert("", "end", 
                                               values = [nn, self.name_entry.get(), self.type_combobox.get(),
-                                                        self.difficulty_combobox.get(),self.sound_combobox.get(), int(score)])
-                            cols_name = ['遊玩順序','姓名', '關卡種類', '難度', "聲音", '得分']
+                                                        self.sound_combobox.get(), int(score)])
+                            cols_name = ['順序','姓名', '種類', "聲音", '得分']
                             nn+=1
                             for col in cols_name:
                                 self.table.heading(col, text=col)
